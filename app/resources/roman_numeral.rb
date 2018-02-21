@@ -14,48 +14,48 @@ class RomanNumeral < Dry::Struct
     50 => 'Ⅼ',
     100 => 'Ⅽ',
     500 => 'Ⅾ',
-    1000 => 'Ⅿ',
+    1000 => 'Ⅿ'
   }
 
   attribute :numeral, Types::Coercible::Int
 
   def to_s
-    if numeral == 1
-      'I'
-    elsif numeral == 2
-      'II'
-    elsif numeral == 3
-      'III'
-    elsif numeral == 4
-      'IV'
-    elsif numeral == 5
-      'V'
-    elsif numeral == 6
-      'VI'
-    elsif numeral == 7
-      'VII'
-    elsif numeral == 8
-      'VIII'
-    elsif numeral == 9
-      'IX'
-    elsif numeral == 10
-      'X'
-    elsif numeral == 11
-      'XI'
-    elsif numeral == 12
-      'ⅩⅠⅠ'
-    elsif numeral == 24
-      'ⅩⅩⅠⅤ'
-    end
+    to_roman_numeric
   end
 
   def +(val)
     RomanNumeral.new(numeral: numeral + val.numeral)
   end
 
+  def *(val)
+    RomanNumeral.new(numeral: numeral * val.numeral)
+  end
+
   private
 
   def to_roman_numeric
+    str = ''
+    tmp_num = numeral
+    ROMAN_DICTIONARY.keys.reverse.each do |num|
+      q, mod = tmp_num.divmod num
 
+      if q <= 3
+        str += ROMAN_DICTIONARY[num] * q
+      elsif q >= 4
+        str += "#{ROMAN_DICTIONARY[num]}#{ROMAN_DICTIONARY[num * 5]}"
+      end
+
+      mod2 = mod % (num - (num / 10))
+      if mod != mod2
+        str += "#{ROMAN_DICTIONARY[num / 10]}#{ROMAN_DICTIONARY[num]}"
+        mod = mod2
+      end
+
+      tmp_num = mod
+
+      break if tmp_num == 0
+    end
+
+    str
   end
 end
